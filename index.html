@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>Gully Cricket Council</title>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+
+
+
+
+
+
+
+    <style>
+
+
+
+
+
+        :root {
+            --primary: #1b4332;
+            --secondary: #40916c;
+            --accent: #d8f3dc;
+            --dark: #081c15;
+            --light: #ffffff;
+            --danger: #91254f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .setup-section, .main-scoreboard {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #a0073e; }
+        .btn-accent { background-color: #f39c12; color: white; }
+        .btn-accent:hover { background-color: #e67e22; }
+
+        .live-stats {
+            display: flex;
+            justify-content: space-between;
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .target-text {
+            font-size: 16px;
+            color: #bdc3c7;
+            margin-top: 5px;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .controls-grid button {
+            padding: 15px;
+            font-weight: bold;
+        }
+
+        .extra-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .striker-dot::after {
+            content: " *";
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .pdf-header {
+            display: none;
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+
+
+
+
+    </style>
+
+
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+    
+
+
+ <div class="container" id="scorecard-wrapper">
+
+
+
+    <div class="pdf-header" id="pdf-title">
+
+
+        <h1>Match Scorecard Report</h1>
+        <p id="pdf-summary-text"></p>
+
+
+     </div>
+
+
+
+
+    <h1>🏏 Gully Cricket Council </h1>
+
+
+
+
+
+    <div id="setup-section" class="setup-section">
+
+
+
+
+        <h2>ENTER DETAILS</h2>
+
+
+        
+
+        <div class="grid-2">
+
+
+
+            <div>
+
+                <label for="target-input">Target (koi target nhi hai toh type 0):</label>
+                <input type="number" id="target-input" value="0" min="0">
+
+            </div>
+
+
+
+
+            <div>
+
+                <label for="total-overs-input">TOTAL OVERS:</label>
+                <input type="number" id="total-overs-input" value="10" min="1">
+
+            </div>
+
+
+
+
+        </div>
+
+
+
+        <div class="grid-2">
+
+
+
+
+            <div>
+
+                <label for="striker-input">OPENER SIDE BATSMAN NAME:</label>
+                <input type="text" id="striker-input" value="Batsman 1">
+
+            </div>
+
+
+
+            <div>
+
+                <label for="non-striker-input">RUUNER SIDE BATSMAN NAME:</label>
+                <input type="text" id="non-striker-input" value="Batsman 2">
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+        <div>
+
+            <label for="bowler-input">BOWLER NAME:</label>
+            <input type="text" id="bowler-input" value="Bowler 1">
+
+        </div>
+
+
+
+
+        <button onclick="startMatch()">START MATCH</button>
+
+
+
+    </div>
+
+
+
+    <div id="main-scoreboard" class="main-scoreboard hidden">
+
+
+
+        <div class="live-stats">
+
+
+            
+            <div>
+
+                <span id="display-score">0</span> / <span id="display-wickets">0</span>
+                <div style="font-size: 16px; font-weight: normal; color: #bdc3c7;">    
+                Overs: <span id="display-overs">0.0</span> / <span id="max-overs-text">20</span>
+                     
+            </div>
+
+
+
+
+            </div>
+
+
+
+            <div style="text-align: right;">
+
+
+                <div id="target-display" class="target-text"></div>
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+        <h3>Add Runs</h3>
+
+
+
+
+        <div class="controls-grid">
+            <button onclick="addRuns(0)">0 (Dot)</button>
+            <button onclick="addRuns(1)">1</button>
+            <button onclick="addRuns(2)">2</button>
+            <button onclick="addRuns(3)">3</button>
+            <button onclick="addRuns(4)" style="background-color: #2a9d8f;">4</button>
+            <button onclick="addRuns(6)" style="background-color: #e76f51;">6</button>
+            <button onclick="addExtra('wd')" class="btn-accent">wide</button>
+            <button onclick="addExtra('nb')" class="btn-accent">no Ball</button>
+        </div>
+
+
+
+
+
+        <div class="extra-controls">
+
+            <button onclick="handleWicket()" class="btn-danger" style="flex: 2;">🔴 WICKET</button>
+            <button onclick="undo()" class="btn-accent" style="flex: 1;">↩️ Undo</button>
+
+        </div>
+
+
+
+
+
+        <h3>Batsmen Card</h3>
+
+
+    
+        <table>
+
+            
+            <thead>
+
+                
+                <tr>
+                    <th>Batsman</th>
+                    <th>Runs</th>
+                    <th>Balls</th>
+                    <th>4s</th>
+                    <th>6s</th>
+                    <th>Strike Rate</th>
+                </tr>
+
+
+
+            </thead>
+
+
+
+            <tbody id="batsmen-table-body"></tbody>
+
+
+
+        </table>
+<br>
+
+        <h3>Current Bowler</h3>
+
+
+        <table>
+
+
+            <thead>
+
+
+                <tr>
+
+
+                    <th>Bowler</th>
+                    <th>Overs</th>
+                    <th>Runs</th>
+                    <th>Wickets</th>
+                    <th>Economy</th>
+
+
+                </tr>
+
+
+            </thead>
+
+
+            <tbody id="bowler-table-body"></tbody>
+
+            
+        </table>
+
+
+
+        <div style="margin-top: 30px; text-align: right;">
+            <button onclick="downloadPDF()" style="background-color: #023e8a;">📄 Download PDF </button>
+        </div>
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+</div>
+
+
+
+<script>
+
+
+
+
+
+
+
+
+
+
+    let state = {
+        totalRuns: 0,
+        wickets: 0,
+        ballsBowled: 0,
+        target: 0,
+        maxOvers: 20,
+        extras: 0,
+        
+        striker: "",
+        nonStriker: "",
+        currentBowler: "",
+        
+        batsmen: {},
+        bowlers: {},
+        
+        history: []
+    };
+
+
+
+
+
+
+
+
+
+
+    function startMatch() {
+        state.target = parseInt(document.getElementById('target-input').value) || 0;
+        state.maxOvers = parseInt(document.getElementById('total-overs-input').value) || 20;
+        
+        state.striker = document.getElementById('striker-input').value.trim() || "Batsman 1";
+        state.nonStriker = document.getElementById('non-striker-input').value.trim() || "Batsman 2";
+        state.currentBowler = document.getElementById('bowler-input').value.trim() || "Bowler 1";
+
+        initBatsman(state.striker);
+        initBatsman(state.nonStriker);
+        initBowler(state.currentBowler);
+
+        document.getElementById('setup-section').classList.add('hidden');
+        document.getElementById('main-scoreboard').classList.remove('hidden');
+        
+        saveState();
+        updateDOM();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    function initBatsman(name) {
+        if (!state.batsmen[name]) {
+            state.batsmen[name] = { runs: 0, balls: 0, fours: 0, sixes: 0 };
+        }
+    }
+
+
+
+
+
+
+
+
+
+    function initBowler(name) {
+        if (!state.bowlers[name]) {
+            state.bowlers[name] = { balls: 0, runs: 0, wickets: 0 };
+        }
+    }
+
+
+
+
+
+
+
+
+    function saveState() {
+        state.history.push(JSON.stringify({
+            totalRuns: state.totalRuns,
+            wickets: state.wickets,
+            ballsBowled: state.ballsBowled,
+            target: state.target,
+            maxOvers: state.maxOvers,
+            extras: state.extras,
+            striker: state.striker,
+            nonStriker: state.nonStriker,
+            currentBowler: state.currentBowler,
+            batsmen: JSON.parse(JSON.stringify(state.batsmen)),
+            bowlers: JSON.parse(JSON.stringify(state.bowlers))
+        }));
+    }
+
+
+
+
+
+
+
+
+
+    function undo() {
+        if (state.history.length <= 1) {
+            alert("you can clear all the data!");
+            return;
+        }
+        state.history.pop();
+        let prevState = JSON.parse(state.history[state.history.length - 1]);
+        
+        Object.assign(state, prevState);
+        updateDOM();
+    }
+
+
+
+
+
+
+
+
+
+
+
+    function addRuns(runs) {
+        saveState();
+        state.totalRuns += runs;
+        state.ballsBowled += 1;
+
+        state.batsmen[state.striker].runs += runs;
+        state.batsmen[state.striker].balls += 1;
+        if (runs === 4) state.batsmen[state.striker].fours += 1;
+        if (runs === 6) state.batsmen[state.striker].sixes += 1;
+
+        // Update bowler stats
+        state.bowlers[state.currentBowler].runs += runs;
+        state.bowlers[state.currentBowler].balls += 1;
+
+        if (runs % 2 !== 0) {
+            switchStrike();
+        }
+
+        checkOverEnd();
+        updateDOM();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function addExtra(type) {
+        saveState();
+        state.totalRuns += 1;
+        state.extras += 1;
+        state.bowlers[state.currentBowler].runs += 1;
+
+        if (type === 'wd') {
+        } else if (type === 'nb') {
+            let additionalRuns = parseInt(prompt("ENTER TO ADD EXTRA RUN OF NO BALL", "0")) || 0;
+            state.totalRuns += additionalRuns;
+            state.batsmen[state.striker].runs += additionalRuns;
+            state.batsmen[state.striker].balls += 1;
+            state.bowlers[state.currentBowler].runs += additionalRuns;
+            
+            if (additionalRuns % 2 !== 0) switchStrike();
+        }
+        
+        updateDOM();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function handleWicket() {
+        saveState();
+        state.wickets += 1;
+        state.ballsBowled += 1;
+        state.bowlers[state.currentBowler].wickets += 1;
+        state.bowlers[state.currentBowler].balls += 1;
+
+        if (state.wickets >= 10) {
+            alert("ALL OUT MATCH OVER !");
+            updateDOM();
+            return;
+        }
+
+        let newBatsman = prompt("ENTER NEW BATSMAN NAME:");
+        if (!newBatsman || newBatsman.trim() === "") newBatsman = "Batsman " + (Object.keys(state.batsmen).length + 1);
+        newBatsman = newBatsman.trim();
+        
+        initBatsman(newBatsman);
+        state.striker = newBatsman;
+
+        checkOverEnd();
+        updateDOM();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function switchStrike() {
+        let temp = state.striker;
+        state.striker = state.nonStriker;
+        state.nonStriker = temp;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function checkOverEnd() {
+        if (state.ballsBowled % 6 === 0 && state.ballsBowled > 0) {
+            alert(`Over complete! End of Over ${formatOvers(state.ballsBowled)}`);
+            switchStrike();
+            
+            let nextBowler = prompt("ENTER NEW BOWLER NAME:", state.currentBowler);
+            if (!nextBowler || nextBowler.trim() === "") nextBowler = "Bowler " + (Object.keys(state.bowlers).length + 1);
+            nextBowler = nextBowler.trim();
+            
+            initBowler(nextBowler);
+            state.currentBowler = nextBowler;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function formatOvers(balls) {
+        let overs = Math.floor(balls / 6);
+        let remainder = balls % 6;
+        return `${overs}.${remainder}`;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function updateDOM() {
+        document.getElementById('display-score').innerText = state.totalRuns;
+        document.getElementById('display-wickets').innerText = state.wickets;
+        document.getElementById('display-overs').innerText = formatOvers(state.ballsBowled);
+        document.getElementById('max-overs-text').innerText = state.maxOvers;
+
+        let totalOversDecimal = (Math.floor(state.ballsBowled / 6)) + ((state.ballsBowled % 6) / 6);
+        
+
+        let targetDiv = document.getElementById('target-display');
+        if (state.target > 0) {
+            let runsNeeded = state.target - state.totalRuns;
+            let totalBalls = state.maxOvers * 6;
+            let ballsRemaining = totalBalls - state.ballsBowled;
+            
+            if (runsNeeded <= 0) {
+                targetDiv.innerHTML = "<span style='color: #2a9d8f'>Target Chased! Match Won!</span>";
+            } else if (ballsRemaining <= 0 || state.wickets >= 10) {
+                targetDiv.innerHTML = `<span style='color: var(--danger)'>Innings ended. Lost by ${runsNeeded} runs.</span>`;
+            } else {
+                let rrr = ((runsNeeded / ballsRemaining) * 6).toFixed(2);
+                targetDiv.innerHTML = `Need ${runsNeeded} runs in ${ballsRemaining} balls<br><span style='font-size:13px; color:#aaa;'>RRR: ${rrr}</span>`;
+            }
+        } else {
+            targetDiv.innerText = "First Innings";
+        }
+
+        let bBody = document.getElementById('batsmen-table-body');
+        bBody.innerHTML = "";
+        [state.striker, state.nonStriker].forEach((name, idx) => {
+            let bData = state.batsmen[name];
+            let sr = bData.balls > 0 ? ((bData.runs / bData.balls) * 100).toFixed(2) : "0.00";
+            let isStrikerClass = (idx === 0) ? "class='striker-dot'" : "";
+            
+            bBody.innerHTML += `<tr>
+                <td ${isStrikerClass}>${name}</td>
+                <td>${bData.runs}</td>
+                <td>${bData.balls}</td>
+                <td>${bData.fours}</td>
+                <td>${bData.sixes}</td>
+                <td>${sr}</td>
+            </tr>`;
+        });
+
+        let bowlerData = state.bowlers[state.currentBowler];
+        let bOversDecimal = (Math.floor(bowlerData.balls / 6)) + ((bowlerData.balls % 6) / 6);
+                let econ = bOversDecimal > 0 ? (bowlerData.runs / bOversDecimal).toFixed(2) : "0.00";
+
+        let bowlerBody = document.getElementById('bowler-table-body');
+        bowlerBody.innerHTML = `<tr>
+            <td>${state.currentBowler}</td>
+            <td>${formatOvers(bowlerData.balls)}</td>
+            <td>${bowlerData.runs}</td>
+            <td>${bowlerData.wickets}</td>
+            <td>${econ}</td>
+        </tr>`;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    function downloadPDF() {
+        document.getElementById('pdf-title').style.display = 'block';
+        document.getElementById('pdf-summary-text').innerText = `Final Score: ${state.totalRuns}/${state.wickets} in ${formatOvers(state.ballsBowled)} overs. Total Extras: ${state.extras}`;
+
+        const element = document.getElementById('scorecard-wrapper');
+        
+        const buttons = element.querySelectorAll('button');
+        buttons.forEach(b => b.style.visibility = 'hidden');
+
+        const opt = {
+            margin:       10,
+            filename:     `GCC SCORECARD${new Date().toISOString().slice(0,10)}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            buttons.forEach(b => b.style.visibility = 'visible');
+            document.getElementById('pdf-title').style.display = 'none';
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+</body>
+
+
+
+
+
+</html>
